@@ -137,7 +137,7 @@
 
 
         <div class="text_right">
-          <h3>ماذا ستكتشف داخل<br>
+          <h3>ماذا سـتـكـتـشـف داخل<br>
             <span>قواعـــــد الرغـــــــبة؟</span>
           </h3>
 
@@ -264,7 +264,7 @@
           سياسة الأسترجاع فى حالة عدم رضائك عن المنتج ضمان استرجاع خلال 14يوم
         </p>
 
-        <form id="form">
+        <form id="form" novalidate>
           <div class="top_form">
             <p>بمجـرد اـمام الـدفـع يـتــم ارســال نسختك </p>
             <p>في نفس اللحظة علي البريد الالكتروني </p>
@@ -351,7 +351,7 @@
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                 <polyline points="21 15 16 10 5 21"></polyline>
               </svg>
-              <span>صورة إثبات الدفع (سكرين شوت التحويل) *</span>
+              <span>صورة إثبات الدفع (سكرين شوت التحويل) * </span>
             </div>
 
             <!-- حقل الملف الخفي -->
@@ -366,7 +366,7 @@
                   <path d="m16 16-4-4-4 4"></path>
                 </svg>
               </div>
-              <p class="dropzone_prompt">اضغط هنا لاختيار سكرين شوت التحويل</p>
+              <p class="dropzone_prompt">اضغط هنا لاختيار سكرين شوت التحويل * </p>
               <p class="dropzone_sub">أو اسحب الصورة وأفلتها هنا (الحد الأقصى 5 ميجابايت)</p>
             </div>
 
@@ -782,6 +782,7 @@
         }
 
         clearError();
+        if (uploadDropzone) uploadDropzone.classList.remove("dropzone_error");
         selectedProofFile = file;
 
         // قراءة ومعاينة الصورة فوراً
@@ -801,7 +802,10 @@
         if (proofImageInput) proofImageInput.value = "";
         if (previewImage) previewImage.src = "";
         if (previewCard) previewCard.style.display = "none";
-        if (uploadDropzone) uploadDropzone.style.display = "block";
+        if (uploadDropzone) {
+          uploadDropzone.style.display = "block";
+          uploadDropzone.classList.remove("dropzone_error");
+        }
         if (uploadProgressWrap) uploadProgressWrap.style.display = "none";
       }
 
@@ -1005,39 +1009,34 @@
         });
       }
 
-      /* تخصيص رسائل حقول الإدخال */
+      /* إزالة أخطاء الحقول لحظياً عند الكتابة */
       if (nameInput) {
-        nameInput.addEventListener("invalid", function () {
-          if (this.validity.valueMissing) {
-            this.setCustomValidity("من فضلك أدخل الأسم");
-          } else {
-            this.setCustomValidity("");
-          }
-        });
         nameInput.addEventListener("input", function () {
-          if (this.validity.valid) this.setCustomValidity("");
+          if (this.value.trim().length >= 2) {
+            this.classList.remove("input_error");
+            clearError();
+          }
         });
       }
 
       if (emailInput) {
-        emailInput.addEventListener("invalid", function () {
-          if (this.validity.valueMissing) {
-            this.setCustomValidity("من فضلك أدخل البريد الإلكتروني");
-          } else if (this.validity.typeMismatch) {
-            this.setCustomValidity("من فضلك أدخل بريد إلكتروني صحيح");
-          } else {
-            this.setCustomValidity("");
-          }
-        });
         emailInput.addEventListener("input", function () {
-          if (this.validity.valid) this.setCustomValidity("");
-          clearError();
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (emailRegex.test(this.value.trim())) {
+            this.classList.remove("input_error");
+            clearError();
+          }
         });
       }
 
       if (transferPhoneInput) {
         transferPhoneInput.addEventListener("input", function () {
-          clearError();
+          const cleaned = cleanPhoneNumber(this.value.trim());
+          const pref = cleaned.substring(0, 3);
+          if (cleaned.length === 11 && ["010", "011", "012", "015"].includes(pref)) {
+            this.classList.remove("input_error");
+            clearError();
+          }
         });
       }
 
@@ -1074,33 +1073,88 @@
           return;
         }
 
-        const emailVal = emailInput ? emailInput.value.trim() : "";
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        clearError();
         const errors = [];
+        let firstInvalidEl = null;
 
-        // التحقق من صحة البريد الإلكتروني
-        if (!emailVal || !emailRegex.test(emailVal)) {
-          errors.push("يرجى إدخال بريد إلكتروني صحيح (مثال: name@gmail.com) لاستلام نسختك والهدايا فوراً !");
+        // 1. التحقق الإجباري من الأسم
+        const nameVal = nameInput ? nameInput.value.trim() : "";
+        if (!nameVal || nameVal.length < 2) {
+          errors.push("يرجى إدخال الأسم بالكامل");
+          if (nameInput) {
+            nameInput.classList.add("input_error");
+            if (!firstInvalidEl) firstInvalidEl = nameInput;
+          }
+        } else if (nameInput) {
+          nameInput.classList.remove("input_error");
         }
 
-        // التحقق من رقم الهاتف المحول منه
-        const rawTransfer = transferPhoneInput ? transferPhoneInput.value : "";
+        // 2. التحقق الإجباري من البريد الإلكتروني
+        const emailVal = emailInput ? emailInput.value.trim() : "";
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailVal) {
+          errors.push("يرجى إدخال البريد الإلكتروني (لاستلام نسختك والهدايا)");
+          if (emailInput) {
+            emailInput.classList.add("input_error");
+            if (!firstInvalidEl) firstInvalidEl = emailInput;
+          }
+        } else if (!emailRegex.test(emailVal)) {
+          errors.push("صيغة البريد الإلكتروني غير صحيحة (مثال: name@gmail.com)");
+          if (emailInput) {
+            emailInput.classList.add("input_error");
+            if (!firstInvalidEl) firstInvalidEl = emailInput;
+          }
+        } else if (emailInput) {
+          emailInput.classList.remove("input_error");
+        }
+
+        // 3. التحقق الإجباري من رقم الهاتف / المحفظة المحول منه
+        const rawTransfer = transferPhoneInput ? transferPhoneInput.value.trim() : "";
         const cleanedTransferVal = cleanPhoneNumber(rawTransfer);
         const transferPrefix = cleanedTransferVal.substring(0, 3);
         const validPref = ["010", "011", "012", "015"];
-        if (cleanedTransferVal.length !== 11 || !validPref.includes(transferPrefix)) {
-          errors.push("رقم الهاتف/المحفظة المحول منه غير صحيح (11 رقماً) !");
+        if (!rawTransfer) {
+          errors.push("يرجى إدخال رقم المحفظة / الموبايل المحول منه");
+          if (transferPhoneInput) {
+            transferPhoneInput.classList.add("input_error");
+            if (!firstInvalidEl) firstInvalidEl = transferPhoneInput;
+          }
+        } else if (cleanedTransferVal.length !== 11 || !validPref.includes(transferPrefix)) {
+          errors.push("رقم الهاتف المحول منه يجب أن يكون 11 رقماً ويبدأ بـ (010, 011, 012, 015)");
+          if (transferPhoneInput) {
+            transferPhoneInput.classList.add("input_error");
+            if (!firstInvalidEl) firstInvalidEl = transferPhoneInput;
+          }
+        } else if (transferPhoneInput) {
+          transferPhoneInput.classList.remove("input_error");
         }
 
-        // التحقق من وجود صورة إثبات الدفع
+        // 4. التحقق الإجباري من صورة إثبات الدفع
         if (!selectedProofFile) {
-          errors.push("يرجى إرفاق صورة إثبات التحويل (سكرين شوت) لإتمام الطلب !");
+          errors.push("يرجى إرفاق صورة إثبات التحويل (سكرين شوت)");
+          if (uploadDropzone && uploadDropzone.style.display !== "none") {
+            uploadDropzone.classList.add("dropzone_error");
+            if (!firstInvalidEl) firstInvalidEl = uploadDropzone;
+          }
         } else if (selectedProofFile.size > MAX_FILE_SIZE) {
-          errors.push("حجم صورة الإثبات يتجاوز 5 ميجابايت! يرجى اختيار صورة أصغر.");
+          errors.push("حجم صورة الإثبات يتجاوز 5 ميجابايت! يرجى اختيار صورة أصغر");
+          if (uploadDropzone && uploadDropzone.style.display !== "none") {
+            uploadDropzone.classList.add("dropzone_error");
+            if (!firstInvalidEl) firstInvalidEl = uploadDropzone;
+          }
+        } else if (uploadDropzone) {
+          uploadDropzone.classList.remove("dropzone_error");
         }
 
+        // في حال وجود أي حقل ناقص أو غير صحيح: منع الإرسال وتوجيه المستخدم للحقل الناقص
         if (errors.length) {
-          showError(errors.join(" | "));
+          showError("⚠️ تنبيه: جميع الحقول إجبارية لإتمام طلبك:\n• " + errors.join("\n• "));
+          if (firstInvalidEl) {
+            firstInvalidEl.scrollIntoView({ behavior: "smooth", block: "center" });
+            if (typeof firstInvalidEl.focus === "function") {
+              firstInvalidEl.focus();
+            }
+          }
           return;
         } else {
           clearError();

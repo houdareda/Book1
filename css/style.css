@@ -65,22 +65,49 @@ input, button{
 
 #error {
   position: relative;
-  top: -5px;
-  color: red;
-  font-size: 14px;
-  width: max-content;
-  margin: 0 auto;
-  padding: 0 5px 3px;
-  background: #fcfefe;
-  border-radius: 3px;
-  border: 1px solid red;
-  line-height: 1.2;
-  opacity: 0;
-  transition: 0.2s;
+  color: #b91c1c;
+  font-size: 13.5px;
+  font-weight: bold;
+  width: 95%;
+  max-width: 95%;
+  margin: 12px auto 8px;
+  padding: 10px 14px;
+  background: #fff1f2;
+  border-radius: 10px;
+  border: 1.5px solid #f87171;
+  line-height: 1.6;
+  text-align: right;
+  direction: rtl;
+  white-space: pre-line;
+  display: none;
+  box-shadow: 0 3px 12px rgba(239, 68, 68, 0.18);
+  box-sizing: border-box;
 }
 
 #error.active {
-  opacity: 1;
+  display: block;
+  animation: shakeError 0.4s ease-in-out;
+}
+
+/* تمييز الحقول الإجبارية عند نسيانها */
+.form_section form input.input_error {
+  border-color: #ef4444 !important;
+  background-color: #fff1f2 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3) !important;
+  animation: shakeError 0.4s ease-in-out;
+}
+
+.upload_dropzone.dropzone_error {
+  border-color: #ef4444 !important;
+  background-color: #fff1f2 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3) !important;
+  animation: shakeError 0.4s ease-in-out;
+}
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
 }
 
 
@@ -126,6 +153,17 @@ input, button{
   .btn_img{
     width: 280px;
   }
+  
+}
+@media (min-width:992px){
+ .button2 a{
+  font-size: 4vw;
+  margin: 2vw;
+ }
+ .button2{
+  padding-bottom: 2vw;
+ }
+  
 }
 
 
@@ -147,7 +185,6 @@ input, button{
 @media (min-width:576px){
   .hero .text-hero{
     margin: 0 auto;
-    width: 90%;
   }
 }
 
@@ -278,7 +315,21 @@ input, button{
   padding: 0 0 0;
   padding-top: 1vw
 }
-
+.results .top_resluts h4{
+  font-size: 3.3vw;
+}
+.results .top_resluts p{
+  font-size: 3vw;
+  margin-bottom: 2vw;
+}
+.results .imp h4{
+  font-size: 2.6vw;
+  margin-top: 2vw;
+}
+.results .imp p{
+  font-size: 2vw;
+  padding-bottom: 1vw;
+}
 }
 
 /* ==========  xl ≥ 1200px  ========== */
@@ -372,6 +423,16 @@ input, button{
     padding-top: 2vw;
     width: 100%;
     padding-bottom: 3vw;
+  }
+
+  .testm .text_right h3 {
+    font-size: 4.2vw;
+  }
+  .testm .text_right h3 span{
+    font-size: 5vw;
+  }
+  .testm .text_right{
+    width: 45%;
   }
 }
 
@@ -804,6 +865,9 @@ input, button{
 }
 }
 
+.form_section .price{
+  background: #1A2445;
+}
 
 
 /* ==========  lg ≥ 992px  ========== */
@@ -839,10 +903,7 @@ input, button{
 /* ==========  xl ≥ 1200px  ========== */
 @media (min-width:1200px){
 .form_section form{
-  width: 80%;
   padding: 25px 20px 30px;
-  width: max-content;
-  min-width: 600px;
 }
 
 
